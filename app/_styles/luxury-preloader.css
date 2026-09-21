@@ -1,0 +1,209 @@
+/* 9xTechnology cinematic preloader + hero reveal.
+   html.lux-active → intro playing (set by the <head> boot script)
+   html.lux-skip   → intro skipped / finished                         */
+
+html.lux-active {
+  overflow: hidden;
+}
+
+/* Logo handoff: the flying logo is the only visible mark until landing. */
+html.lux-active #header-brand-logo-mark svg {
+  opacity: 0;
+}
+
+html.lux-skip .lux-preloader {
+  display: none;
+}
+
+/* ---------- Overlay ---------- */
+
+.lux-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+.lux-preloader.curtains-open {
+  pointer-events: none;
+}
+
+.lux-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background-color: var(--color-canvas);
+  transition: transform 1000ms var(--ease-lux);
+}
+.lux-curtain-left {
+  left: 0;
+  transform-origin: left center;
+  background-image: radial-gradient(
+    circle at 100% 45%,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    transparent 60%
+  );
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--color-telemetry) 25%, transparent);
+}
+.lux-curtain-right {
+  right: 0;
+  transform-origin: right center;
+  background-image: radial-gradient(
+    circle at 0% 45%,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    transparent 60%
+  );
+}
+.curtains-open .lux-curtain {
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+/* ---------- Stage ---------- */
+
+.lux-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lux-flyer {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  box-shadow: 0 0 48px color-mix(in srgb, var(--color-primary) 45%, transparent);
+  transition:
+    transform 1000ms var(--ease-lux),
+    box-shadow 600ms ease,
+    opacity 400ms ease;
+  animation: lux-logo-in 700ms var(--ease-lux) backwards;
+}
+.curtains-open .lux-flyer {
+  box-shadow: 0 0 0 transparent;
+  will-change: transform;
+}
+.lux-flyer.lux-flyer-fade {
+  opacity: 0;
+}
+
+.lux-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition:
+    opacity 350ms ease,
+    transform 350ms ease;
+}
+.phase-fadeUi .lux-ui,
+.phase-revealed .lux-ui {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.lux-telemetry {
+  margin-top: 2rem;
+}
+
+.lux-bar {
+  transform-origin: left center;
+}
+
+.lux-skip-btn {
+  position: absolute;
+  z-index: 2;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: opacity 300ms ease;
+}
+.lux-skip-btn:focus-visible {
+  outline: 2px solid var(--color-telemetry);
+  outline-offset: 2px;
+}
+.phase-revealed .lux-skip-btn {
+  opacity: 0;
+}
+
+/* ---------- Text masks (preloader + hero) ---------- */
+
+.lux-mask {
+  display: block;
+  overflow: hidden;
+}
+.lux-mask > span {
+  display: inline-block;
+  transform: translateY(120%);
+  transition: transform 900ms var(--ease-lux) calc(var(--lux-i, 0) * 70ms + 150ms);
+}
+.lux-preloader .lux-mask > span {
+  transform: none;
+  animation: lux-rise 800ms var(--ease-lux) 150ms backwards;
+}
+
+/* ---------- Hero reveal ---------- */
+
+.lux-hero-target {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 700ms ease calc(var(--lux-i, 0) * 70ms),
+    transform 900ms var(--ease-lux) calc(var(--lux-i, 0) * 70ms);
+}
+.lux-hero-bg {
+  transform: scale(1.12);
+  transition: transform 1400ms var(--ease-lux);
+}
+
+.lux-hero-target.revealed,
+html.lux-skip .lux-hero-target {
+  opacity: 1;
+  transform: none;
+}
+.lux-hero-target.revealed .lux-mask > span,
+html.lux-skip .lux-hero-target .lux-mask > span,
+.lux-hero-target.revealed .lux-hero-bg,
+html.lux-skip .lux-hero-target .lux-hero-bg {
+  transform: none;
+}
+
+@keyframes lux-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+@keyframes lux-rise {
+  from {
+    transform: translateY(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-preloader {
+    display: none;
+  }
+  .lux-hero-target,
+  .lux-hero-bg,
+  .lux-mask > span {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,10 @@
+.next
+node_modules
+bun.lock
+public
+coverage
+playwright-report
+test-results
+AGENTS.md
+CLAUDE.md
+README.md
